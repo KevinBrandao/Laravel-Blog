@@ -26,7 +26,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -37,7 +37,14 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $user = auth()->user();
+
+        Post::create([
+            'title' => $request->title,
+            'content' => $request->content,
+            'user_id' => $user->id
+        ]);
+            return redirect('/dashboard');
     }
 
     /**
@@ -59,7 +66,9 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+        $post = Post::find($id);
+
+        return view('posts.edit', compact('post'));
     }
 
     /**
@@ -71,7 +80,18 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //apenas o usuario que escrevel o post pode editar ele
+        $user = auth()->user(); 
+        $post = Post::find($id);
+
+        if ($user->id != $post->user_id){
+            abort(404);
+        }
+            $post->update([
+                'title' => $request->title,
+                'content' => $request->content
+            ]);
+            return redirect('/dashboard');
     }
 
     /**
